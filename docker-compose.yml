@@ -1,0 +1,21 @@
+services:
+  backend:
+    build:
+      context: ./conduit-backend
+    container_name: conduit-backend
+    ports:
+      - "7000:8000"
+    env_file:
+      - ./conduit-backend/.env
+    volumes:
+      - ./conduit-backend:/app  # optional für Hot-Reload
+    restart: always
+        
+
+  frontend:
+    build:
+      context: ./conduit-frontend
+    container_name: conduit-frontend
+    ports:
+      - "8282:80"  # Angular via Nginx
+    restart: always
