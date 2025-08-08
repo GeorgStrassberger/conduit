@@ -8,8 +8,13 @@ services:
     env_file:
       - ./conduit-backend/.env
     volumes:
-      - ./conduit-backend:/app  # optional für Hot-Reload
-    restart: always
+     - ./conduit-backend:/app  # optional for Hot-Reload
+    restart: on-failure:5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
         
 
   frontend:
@@ -17,5 +22,10 @@ services:
       context: ./conduit-frontend
     container_name: conduit-frontend
     ports:
-      - "8282:80"  # Angular via Nginx
-    restart: always
+      - "8082:80"  # Angular via Nginx
+    restart: on-failure:5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
