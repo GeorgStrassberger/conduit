@@ -47,6 +47,8 @@ conduit/
 
 ```bash
 git clone --recurse-submodules https://github.com/GeorgStrassberger/conduit.git
+```
+```bash
 cd conduit
 ```
 
@@ -94,6 +96,10 @@ git pull origin docker
 5. Frontend Environment Setup
 
     Inside `conduit-frontend/src/environments/`:
+    
+    ```bash
+    cd ../conduit-frontend/src/environments/
+    ```
 
     ```bash
     cp environment.development.ts environment.ts
@@ -102,7 +108,7 @@ git pull origin docker
 
     Edit as needed:
 
-    ```text
+    ```javascript
     export const environment = {
       production: true,                          // set to TRUE
       apiUrl: "http://localhost:7000/api",       // your host-ipv4
