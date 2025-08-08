@@ -8,7 +8,7 @@ services:
     env_file:
       - ./conduit-backend/.env
     volumes:
-     - ./conduit-backend:/app  # optional for Hot-Reload
+      - ./conduit-backend:/app  # optional for Hot-Reload
     restart: on-failure:5
     logging:
       driver: "json-file"
