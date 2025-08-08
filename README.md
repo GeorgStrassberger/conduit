@@ -1,6 +1,6 @@
 # Conduit Project (Dockerized Fullstack App)
 
-A fullstack Conduit application:
+A fullstack Conduit application powered by:
 - **Frontend**: Angular – [conduit-frontend](https://github.com/Developer-Akademie-GmbH/conduit-frontend.git)
 - **Backend**: Django – [conduit-backend](https://github.com/Developer-Akademie-GmbH/conduit-backend.git)
 
