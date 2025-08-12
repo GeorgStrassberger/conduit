@@ -146,10 +146,14 @@ efgh5678       conduit-frontend       "nginx -g ..."           Up 10 seconds  0.
 ```
 
 ## Usage
-- Backend: http://localhost:7000/admin
-- Frontend: http://localhost:8082
 
-Replace `localhost` with your local IP if needed.
+Replace `localhost` with your host IP if needed.
+
+- Backend: http://localhost:7000/admin
+![Django Admin Login](./conduit-backend/django_administration.png)
+
+- Frontend: http://localhost:8082
+![Conduit page](./conduit-frontend/conduit_page.png)
 
 
 ## Author
