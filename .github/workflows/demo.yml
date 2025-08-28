@@ -16,16 +16,34 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          submodules: recursive # oder "true" wenn keine verschachtelten Submodule
+          fetch-depth: 0 # volle History (oft hilfreich bei Submodules/Tags)
+          # Wenn Submodule privat sind und via HTTPS eingebunden:
+          # token: ${{ secrets.GH_PAT }}   # PAT mit Repo-Zugriff
+          # Falls Submodule via SSH eingebunden:
+          # ssh-key: ${{ secrets.CI_SSH_KEY }}
       - name: ECHO Frontend Build
         run: echo "Building frontend..."
+      # Cache node modules
+      - name: List files
+        run: ls -la
 
   build-backend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          # token: ${{ secrets.GH_PAT }}
+          # ssh-key: ${{ secrets.CI_SSH_KEY }}
       - name: ECHO Backend Build
         run: echo "Building backend..."
+      # Cache pip modules
+      - name: List files
+        run: ls -la
 
   deploy:
     needs:
