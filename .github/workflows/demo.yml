@@ -11,16 +11,26 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-frontend:
     runs-on: ubuntu-latest
     steps:
-      - name: Echo Hello World
-        run: echo "Hello, World!"
       - name: Checkout repository
         uses: actions/checkout@v5
+      - name: ECHO Frontend Build
+        run: echo "Building frontend..."
+
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: ECHO Backend Build
+        run: echo "Building backend..."
 
   deploy:
-    needs: build
+    needs:
+      - build-frontend
+      - build-backend
     runs-on: ubuntu-latest
     steps:
       - name: Deploy Step
