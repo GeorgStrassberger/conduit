@@ -10,34 +10,50 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-frontend:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout sub-repository
         uses: actions/checkout@v5
         with:
           submodules: recursive
           fetch-depth: 0
-      - name: ECHO Frontend Build
-        run: echo "Building frontend..."
-      # Cache node modules
-      - name: List files
-        run: ./conduit-frontend/ls -la
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+      - name: Build and Push Docker image
+        run: |
+          IMAGE_NAME=ghcr.io/georgstrassberger/conduit-frontend:latest
+          docker build -t $IMAGE_NAME .
+          docker push $IMAGE_NAME
 
   build-backend:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout sub-repository
         uses: actions/checkout@v5
         with:
           submodules: recursive
           fetch-depth: 0
-      - name: ECHO Backend Build
-        run: echo "Building backend..."
-      # Cache pip modules
-      - name: List files
-        run: ./conduit-backend/ls -la
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+      - name: Build and Push Docker image
+        run: |
+          IMAGE_NAME=ghcr.io/georgstrassberger/conduit-frontend:latest
+          docker build -t $IMAGE_NAME .
+          docker push $IMAGE_NAME
 
   deploy:
     needs:
