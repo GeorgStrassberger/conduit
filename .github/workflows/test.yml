@@ -3,7 +3,12 @@ name: Deploy-Workflow
 on:
   push:
     branches:
+      - "main"
       - "docker"
+  pull_request:
+    branches:
+      - "main"
+  workflow_dispatch:
 
 permissions:
   contents: read
