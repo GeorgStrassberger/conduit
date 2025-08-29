@@ -81,5 +81,31 @@ jobs:
       - build-backend
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy Step
-        run: echo "Deploying application..."
+      - name: Check out code & submodules
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Copy docker-compose.yml to server
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || '22' }}
+          source: "docker-compose.yml"
+          target: "${{ secrets.DEPLOY_PATH }}/"
+
+      - name: Pull new images & restart
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || '22' }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            docker compose down --remove-orphans
+            docker compose pull
+            docker compose up -d
