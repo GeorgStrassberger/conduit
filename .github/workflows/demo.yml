@@ -87,6 +87,9 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      - name: List files for debugging
+        run: ls -lisa
+
       - name: Copy docker-compose.yml to server
         uses: appleboy/scp-action@v1
         with:
