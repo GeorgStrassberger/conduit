@@ -1,4 +1,4 @@
-name: Docker Workflow
+name: Docker Deployment
 
 on:
   push:
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   build-frontend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout sub-repository
         uses: actions/checkout@v5
@@ -46,7 +46,7 @@ jobs:
             API_HOST=${{ secrets.API_HOST }}
 
   build-backend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout sub-repository
         uses: actions/checkout@v5
@@ -79,7 +79,7 @@ jobs:
     needs:
       - build-frontend
       - build-backend
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out code & submodules
         uses: actions/checkout@v5
@@ -109,6 +109,6 @@ jobs:
           port: ${{ secrets.SSH_PORT || '22' }}
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
-            docker compose down --remove-orphans
+            set -euo pipefail
             docker compose pull
-            docker compose up -d
+            docker compose up -d --remove-orphans
