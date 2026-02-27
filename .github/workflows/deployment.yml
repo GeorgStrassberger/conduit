@@ -1,0 +1,114 @@
+name: Docker Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - docker
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout sub-repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Build & Push FRONTEND_IMAGE
+        uses: docker/build-push-action@v6
+        with:
+          context: ./conduit-frontend
+          file: ./conduit-frontend/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/georgstrassberger/conduit-fe:${{ steps.image_tag.outputs.tag || 'latest' }}
+          build-args: |
+            API_HOST=${{ secrets.API_HOST }}
+
+  build-backend:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout sub-repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & Push BACKEND_IMAGE
+        uses: docker/build-push-action@v6
+        with:
+          context: ./conduit-backend
+          file: ./conduit-backend/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/georgstrassberger/conduit-be:${{ steps.image_tag.outputs.tag || 'latest' }}
+
+  deploy:
+    needs:
+      - build-frontend
+      - build-backend
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out code & submodules
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: List files for debugging
+        run: ls -lisa
+
+      - name: Copy docker-compose.yml to server
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || '22' }}
+          source: "docker-compose.yml"
+          target: "${{ secrets.DEPLOY_PATH }}/"
+
+      - name: Pull new images & restart
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || '22' }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            set -euo pipefail
+            docker compose pull
+            docker compose up -d --remove-orphans
